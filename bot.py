@@ -25,7 +25,7 @@ dp = Dispatcher()
 # --- Обработка запуска Mini App ---
 @dp.message(Command("start"))
 async def start(message: types.Message, bot: Bot):
-    web_app_info = types.WebAppInfo(url="http://127.0.0.1:5000")
+    web_app_info = types.WebAppInfo(url="URL")
     keyboard = InlineKeyboardBuilder()
     keyboard.button(text="Открыть магазин", web_app=web_app_info)
     await message.answer(
@@ -46,6 +46,7 @@ async def web_app_data(message: types.Message, bot: Bot):
     chat_id = message.chat.id
 
     logging.info(f"Получены данные от пользователя {user_id} ({username}): {received_data}")
+
 
     await bot.send_message(
         chat_id,
