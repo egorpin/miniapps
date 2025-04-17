@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Интернет-магазин</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="container">
+        <h1>Наш интернет-магазин</h1>
+        <div id="product-list">
+            </div>
+    </div>
+    <footer>
+        &copy; 2025 Наш магазин
+    </footer>
+
+    <script>
+        Telegram.WebApp.ready();
+
+        async function fetchProducts() {
+            try {
+                const response = await fetch('/api/products');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const products = await response.json();
+                displayProducts(products);
+            } catch (error) {
+                console.error('Ошибка при получении товаров:', error);
+            }
+        }
+
+        function displayProducts(products) {
+            const productListDiv = document.getElementById('product-list');
+            productListDiv.innerHTML = '';
+            products.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.classList.add('product-item');
+                productDiv.innerHTML = `
+                    <div class="product-title">${product.title}</div>
+                    <div class="product-price">Цена: ${product.price} руб.</div>
+                    <p>${product.description}</p>
+                    <button onclick="addToCart(${product.id})">Добавить в корзину</button>
+                `;
+                productListDiv.appendChild(productDiv);
+            });
+        }
+
+        function addToCart(productId) {
+            fetch('/api/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ product_id: productId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                Telegram.WebApp.showAlert(data.message);
+                console.log('Ответ сервера:', data);
+            })
+            .catch(error => {
+                console.error('Ошибка при добавлении в корзину:', error);
+            });
+        }
+
+        fetchProducts();
+    </script>
+</body>
+</html>
